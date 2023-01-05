@@ -1,0 +1,13 @@
+handler: lambda_function.lambda_handler
+timeout: 900
+module: testing_event_data
+
+package:
+  patterns:
+    - testing_event_data/lambda_function.py
+    - testing_event_data/lambda1.py
+    - testing_event_data/lambda2.py
+    - testing_event_data/testing_json_file.py
+
+name: ${self:service}-testing_sf_lambdas-${self:provider.stage}
+

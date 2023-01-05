@@ -1,0 +1,16 @@
+role:
+  Fn::GetAtt: [ TestingSfRole, Arn ]
+name: testing_sf_dev
+definition:
+  Comment: This test function simply test the given lambda
+  StartAt: TESTING LAMBDA FUNCTION
+  States:
+    TESTING LAMBDA FUNCTION:
+      Type: Task
+      Comment: Simple Lambda Testing
+      Resource:
+        "arn:aws:states:::lambda:invoke"
+      Parameters:
+        FunctionName: !GetAtt testing_function.Arn
+      ResultPath: $.result
+      End: True

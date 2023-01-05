@@ -1,0 +1,75 @@
+org: saatwik55
+service: testingProject
+configValidationMode: error
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  stage: dev
+  runtime: python3.8
+  profile: second_acc_admin
+  region: ap-south-1
+  versionFunctions: false
+  stackName: testing-project-dev
+  iam:
+    role: TestingLambdaRole
+
+package:
+  individually: true
+  patterns:
+    - "!node_modules/**"
+    - "!requirements.txt"
+    - "!package.json"
+
+
+plugins:
+  - serverless-python-requirements
+  - serverless-plugin-split-stacks
+  - serverless-step-functions
+
+custom:
+  splitStacks:
+    nestedStackCount: 100
+    perFunction: false
+    perType: true
+    perGroupFunction: false
+
+  s3TestingEventBucket: "s3-event-data-bucket" # Name of the bucket
+
+stepFunctions:
+  stateMachines:
+    testing_sf: ${file(./Resources/testing_sf.yml)}
+    testing_event_sf: ${file(./Resources/testing_event_sf.yml)}
+
+resources:
+  Resources:
+    TestingSfRole: ${file(./Resources/testing_sf_role.yml)}
+    TestingEventSfRole: ${file(./Resources/testing_event_sf_role.yml)}
+    s3TestingEventData: ${file(./Resources/s3_testing_event_data.yml)}
+    TestingLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: testing-lambda-role
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: testing-lambda-role-policy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement: ${file(./Resources/iam_lambda_role.yml)}
+
+
+functions:
+ testing_function: ${file(./Resources/testing_functions.yml)}
+ testing_sf_lambdas: ${file(./Resources/testing_sf_lambdas.yml)}
+
+
+
+

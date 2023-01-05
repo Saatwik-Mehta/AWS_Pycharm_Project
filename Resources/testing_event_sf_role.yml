@@ -1,0 +1,45 @@
+Type: AWS::IAM::Role
+Properties:
+  RoleName: testing_event_sf_role
+  AssumeRolePolicyDocument:
+    Version: '2012-10-17'
+    Statement:
+      - Effect: Allow
+        Principal:
+          Service:
+            - states.amazonaws.com
+        Action: sts:AssumeRole
+  Policies:
+    - PolicyName: testing-event-sf-role-policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: Allow
+          Action:
+          - lambda:InvokeFunction
+          Resource: arn:aws:lambda:ap-south-1:002095402561:function:${self:service}-testing_sf_lambdas-${self:provider.stage}
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+          Resource: arn:aws:s3:::s3-event-data-bucket/*
+        - Effect: Allow
+          Action:
+            - states:StartExecution
+          Resource: arn:aws:states:ap-south-1:002095402561:stateMachine:testing_event_sf_dev
+        - Effect: Allow
+          Action:
+            - states:DescribeExecution
+            - states:StopExecution
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - events:PutTargets
+            - events:PutRule
+            - events:DescribeRule
+          Resource:
+            - arn:aws:events:ap-south-1:002095402561:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+          Resource: arn:aws:s3:::s3-event-data-bucket/*
+

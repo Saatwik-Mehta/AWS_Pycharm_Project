@@ -1,0 +1,85 @@
+events:
+  - schedule:
+     rate: rate(1 minute)
+     enabled: true
+     input:
+        bucket_name: ${self:custom.s3TestingEventBucket}
+
+role:
+  Fn::GetAtt: [ TestingEventSfRole, Arn ]
+name: testing_event_sf_dev
+definition:
+  Comment: "Simple testing of the SF"
+  StartAt: "Testing For Json"
+  States:
+    "Testing For Json":
+      Type: Task
+      Resource: "arn:aws:states:::lambda:invoke"
+      InputPath: "$"
+      Parameters:
+        FunctionName:
+         Fn::GetAtt: [ testing_sf_lambdas, Arn ]
+        Payload:
+          input_trigger: "testing_json"
+          executionId.$: "$$.Execution.Id"
+          bucket_name.$: $.bucket_name
+
+      Next: "Data Processor Array"
+      ResultPath: "$.result"
+      ResultSelector:
+        data_array_count.$: "$.Payload.data_array_count"
+        bucket_name.$: "$.Payload.bucket_name"
+        key_name.$: "$.Payload.key_name"
+        prefix.$: "$.Payload.prefix"
+
+    "Data Processor Array":
+      Type: Map
+      ItemProcessor:
+        ProcessorConfig:
+          Mode: DISTRIBUTED
+          ExecutionType: STANDARD
+        StartAt: Lambda1
+        States:
+          Lambda1:
+            Type: Task
+            Resource: arn:aws:states:::lambda:invoke
+            Parameters:
+              FunctionName:
+               Fn::GetAtt: [ testing_sf_lambdas, Arn ]
+              Payload:
+                input_trigger: "lambda1"
+                input.$: "$"
+            Next: Lambda2
+            ResultPath: "$.lambda1_result"
+            ResultSelector:
+              data.$: "$.Payload"
+          Lambda2:
+            Type: Task
+            Resource: "arn:aws:states:::lambda:invoke"
+            Parameters:
+              FunctionName:
+               Fn::GetAtt: [ testing_sf_lambdas, Arn ]
+              Payload:
+                input_trigger: "lambda2"
+                input.$: "$"
+            ResultPath: "$.lambda2_result"
+            ResultSelector:
+              data.$: "$.Payload"
+            End: true
+      End: true
+      Label: Data_Processor_Array
+      ItemReader:
+        Resource: arn:aws:states:::s3:getObject
+        ReaderConfig:
+          InputType: "JSON"
+        Parameters:
+          Bucket.$: "$.bucket_name"
+          Key.$: "$.key_name"
+      ResultWriter:
+        Resource: "arn:aws:states:::s3:putObject"
+        Parameters:
+          Bucket.$: "$.bucket_name"
+          "Prefix.$": "$.prefix"
+
+      MaxConcurrency: 10
+      InputPath: "$.result"

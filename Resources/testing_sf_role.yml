@@ -1,0 +1,21 @@
+Type: AWS::IAM::Role
+Properties:
+  RoleName: testing_sf_role
+  AssumeRolePolicyDocument:
+    Version: '2012-10-17'
+    Statement:
+      - Effect: Allow
+        Principal:
+          Service:
+            - states.amazonaws.com
+        Action: sts:AssumeRole
+  Policies:
+    - PolicyName: testing-sf-role-policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: Allow
+          Action:
+          - lambda:InvokeFunction
+          Resource: arn:aws:lambda:ap-south-1:002095402561:function:${self:service}-testing_functions-${self:provider.stage}
+

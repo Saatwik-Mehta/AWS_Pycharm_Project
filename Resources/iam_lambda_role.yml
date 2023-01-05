@@ -1,0 +1,12 @@
+- Effect: Allow
+  Action:
+    - s3:PutObject
+    - s3:GetObject
+  Resource: arn:aws:s3:::s3-event-data-bucket/*
+
+- Effect: Allow
+  Action:
+    - logs:CreateLogGroup
+    - logs:CreateLogStream
+    - logs:PutLogEvents
+  Resource: '*'
