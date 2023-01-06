@@ -1,6 +1,6 @@
 #githubActionSetupForServerlessFramework 
 name: github-actions
-run-name: ${{github.SERVERLESS_ACCESS_KEY}} is learning GitHub Actions
+run-name: ${{github.actor}} is learning GitHub Actions
 on:
   push:
     branches:
