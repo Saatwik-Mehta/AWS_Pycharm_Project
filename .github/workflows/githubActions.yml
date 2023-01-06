@@ -1,0 +1,35 @@
+#githubActionSetupForServerlessFramework 
+name: github-actions
+run-name: ${{github.actor}} is learning GitHub Actions
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: deployToServerless
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+        node-version: [16.x]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Python ${{matrix.python-version}}
+      uses: actions/setup-python@4
+      with:
+        python-version: ${{ matrix.python-version}}
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - name: Deploy
+      uses: serverless/github-action@v3
+      with:
+        args: deploy --verbose
+      env:
+        SERVERLESS_ACCESS_KEY: ${{secrets.SERVERLESS_ACCESS_KEY}}
+
