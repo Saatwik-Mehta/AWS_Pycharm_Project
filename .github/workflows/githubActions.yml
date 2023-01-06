@@ -26,6 +26,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm shrinkwrap
+    - run: npm install
     - run: npm ci
     - name: Deploy
       uses: serverless/github-action@v3
