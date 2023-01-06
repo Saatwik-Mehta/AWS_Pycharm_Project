@@ -8,7 +8,6 @@ provider:
   name: aws
   stage: dev
   runtime: python3.8
-  profile: second_acc_admin
   region: ap-south-1
   versionFunctions: false
   stackName: testing-project-dev
