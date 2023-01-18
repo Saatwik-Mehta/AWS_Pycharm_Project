@@ -9,6 +9,7 @@ provider:
   stage: dev
   runtime: python3.8
   region: ap-south-1
+  profile: second_acc_admin
   versionFunctions: false
   stackName: testing-project-dev
   iam:
