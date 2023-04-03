@@ -1,0 +1,19 @@
+Type: "AWS::DynamoDB::Table"
+Properties:
+  TableName: ${self:custom.BUTTONS_DDB_TABLE_NAME}
+  BillingMode: PAY_PER_REQUEST
+  AttributeDefinitions:
+    - AttributeName: t_button_id
+      AttributeType: S
+    - AttributeName: mere_id
+      AttributeType: S
+  KeySchema:
+    - AttributeName: t_button_id
+      KeyType: HASH
+  GlobalSecondaryIndexes:
+    - IndexName: byMereId
+      KeySchema:
+        - AttributeName: mere_id
+          KeyType: HASH
+      Projection:
+        ProjectionType: "ALL"
