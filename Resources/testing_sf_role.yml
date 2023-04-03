@@ -17,5 +17,5 @@ Properties:
         - Effect: Allow
           Action:
           - lambda:InvokeFunction
-          Resource: arn:aws:lambda:ap-south-1:002095402561:function:${self:service}-testing_functions-${self:provider.stage}
+          Resource: arn:aws:lambda:${aws:region}:${aws:accountId}:function:${self:service}-testing_functions-${self:provider.stage}
 
